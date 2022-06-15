@@ -6,6 +6,7 @@ use App\Mail\CompanyCreatedMail;
 use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyRequest extends FormRequest
 {
@@ -30,7 +31,7 @@ class CompanyRequest extends FormRequest
 
         if($this->logo) {
             $filename = strtolower(str_replace(' ', '', $this->name)).'-logo.'.$this->logo->extension();
-            $this->logo->move(public_path('images/logos/'), $filename);
+            Storage::disk('public')->putFileAs('images/logos/', $this->logo,$filename);
             $data = array_merge($data, ['logo' => asset('images/logos/'.$filename)]);
         }
         if($company != null) {

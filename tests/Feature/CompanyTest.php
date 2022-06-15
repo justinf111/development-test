@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Mail\CompanyCreatedMail;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class CompanyTest extends TestCase
@@ -14,6 +16,8 @@ class CompanyTest extends TestCase
 
     public function testCanAddCompany()
     {
+        Mail::fake();
+        $user = User::first();
         $name = $this->faker->company;
         $data = [
             'name' => $name,
@@ -21,8 +25,12 @@ class CompanyTest extends TestCase
             'phone' => $this->faker->phoneNumber,
             'logo' => UploadedFile::fake()->image(strtolower(str_replace(' ', '',$name)).'-logo.jpg', 150, 150)
         ];
-        $this->followingRedirects()->actingAs(User::first())->post('/companies', $data);
+        $this->followingRedirects()->actingAs($user)->post('/companies', $data);
         $this->assertDatabaseHas(Company::class, collect($data)->except('logo')->toArray());
+
+        Mail::assertSent(CompanyCreatedMail::class, function ($mail) use($user) {
+            return $mail->hasTo($user->email);
+        });
     }
 
     public function testCanDeleteEmployee()
