@@ -29,7 +29,7 @@ class CompanyRequest extends FormRequest
         $data = $this->except(['_method','_token', 'logo']);
 
         if($this->logo) {
-            $filename = strtolower(str_replace(' ', '', $this->name)).'-logo'.$this->logo->extension();
+            $filename = strtolower(str_replace(' ', '', $this->name)).'-logo.'.$this->logo->extension();
             $this->logo->move(public_path('images/logos/'), $filename);
             $data = array_merge($data, ['logo' => asset('images/logos/'.$filename)]);
         }
